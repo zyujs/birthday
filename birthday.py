@@ -24,7 +24,7 @@ svbdsrh = Service('pcr-birthday-search', bundle='pcr娱乐', help_='''
 
 def download_chara_dara():
     try:
-        chara_data = requests.request('GET', API, timeout=5).json()
+        chara_data = requests.request('GET', CHARA_DATA_API, timeout=5).json()
     except requests.exceptions.ConnectTimeout:
         hoshino.logger.error('`pcr-birthday` 角色数据API TIMEOUT')
         chara_data = 'error'
@@ -67,7 +67,9 @@ def load_chara_data():
                 save_chara_data(chara_data)
     if chara_data == 'error':
         hoshino.logger('`pcr-birthday` 本地和在线数据源均出错，救不了了')
-        return
+        return {}
+    else:
+        return chara_data
 
 def uid2card(uid, user_card_dict):
     return str(uid) if uid not in user_card_dict.keys() else user_card_dict[uid]
@@ -163,7 +165,7 @@ async def birthday_search_date(bot, ev):
             msg = msg + f'{name}ちゃん{cqcode}在{birthdate}过生日哦~\n'
         await bot.send(ev, msg)
 
-@sv.on_fullmatch(UPDATE_LOCAL_DATA)
+@svbdsrh.on_fullmatch(UPDATE_LOCAL_DATA)
 async def birthday_update_local_data(bot, ev):
     if priv.check_priv(ev,priv.SUPERUSER):
         update_local_data()
